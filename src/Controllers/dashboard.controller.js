@@ -1,5 +1,6 @@
 const transactionModel = require("../Models/transaction.model");
 const accountModel = require("../Models/account.model");
+const budgetModel = require("../Models/budget.model");
 
 const getDashboardData = async (req, res) => {
   try {
@@ -15,6 +16,12 @@ const getDashboardData = async (req, res) => {
     const nextMonthStart = new Date(
       Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1),
     );
+
+    const currentBudget = await budgetModel.findOne({
+      user,
+      month: now.getMonth() + 1,
+      year: now.getFullYear(),
+    });
 
     // Calculate total and monthly income/expenses
     const transactionStats = await transactionModel.aggregate([
@@ -103,6 +110,9 @@ const getDashboardData = async (req, res) => {
         currentBalance: accounts.currentBalance || 0,
         monthlyIncome: stats.monthlyIncome || 0,
         monthlyExpenses: stats.monthlyExpenses || 0,
+        monthlyBudget: currentBudget?.amount || 0,
+        remainingBudget:
+          (currentBudget?.amount || 0) - (stats.monthlyExpenses || 0),
         recentTransactions,
       },
     });

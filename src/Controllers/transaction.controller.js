@@ -270,9 +270,55 @@ const deleteTransaction = async (req, res) => {
   }
 };
 
+const exportTransactionsCSV = async (req, res) => {
+  try {
+    const user = req.user._id;
+
+    const transactions = await transactionModel
+      .find({ user })
+      .populate("accountId", "accountName", "accountType")
+      .sort({ date: -1 });
+
+    const headers = ["Date", "Type", "Category", "Amount", "Account", "Note"];
+
+    const escapeCSV = (value) => {
+      const text = String(value ?? "");
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+
+    const rows = transactions.map((transaction) => [
+      transaction.date.toISOString().split("T")[0],
+      transaction.type,
+      transaction.category,
+      transaction.amount,
+      transaction.accountId?.accountName || "N/A",
+      transaction.note,
+    ]);
+
+    const csv = [
+      headers.map(escapeCSV).join(","),
+      ...rows.map((row) => row.map(escapeCSV).join(",")),
+    ].join("\n");
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="transactions.csv"',
+    );
+
+    return res.status(200).send("\uFEFF" + csv);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createTransaction,
   getAllTransactionsOfUser,
   updateTransaction,
-  deleteTransaction
+  deleteTransaction,
+  exportTransactionsCSV,
 };

@@ -7,6 +7,7 @@ const {
   getAllTransactionsOfUser,
   updateTransaction,
   deleteTransaction,
+  exportTransactionsCSV,
 } = require("../Controllers/transaction.controller");
 const router = express.Router();
 
@@ -41,5 +42,7 @@ router.delete(
   userAuthMiddleware,
   deleteTransaction,
 );
+
+router.get("/export-csv", userAuthMiddleware, exportTransactionsCSV);
 
 module.exports = router;

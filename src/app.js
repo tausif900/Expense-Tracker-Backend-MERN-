@@ -5,6 +5,10 @@ const cookieParser = require("cookie-parser");
 const accountRouter = require("./Routes/account.router");
 const transactionRouter = require("./Routes/tranasction.router");
 const dashboardRouter = require("./Routes/dashboard.router");
+const budgetRoutes = require("./Routes/budget.router");
+const savingRouter = require("./Routes/saving.router");
+const analyticsRouter = require("./Routes/analytics.router");
+
 const app = express();
 
 app.use(
@@ -32,5 +36,11 @@ app.use("/api/transaction", transactionRouter);
 
 // Routes to show data on dashboard
 app.use("/api/dashboard", dashboardRouter);
+
+app.use("/api/budget", budgetRoutes);
+
+app.use("/api/savings-goals", savingRouter);
+
+app.use("/api/analytics", analyticsRouter);
 
 module.exports = app;
