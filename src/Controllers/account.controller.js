@@ -71,4 +71,39 @@ const updateAccount = async (req, res) => {
   }
 };
 
-module.exports = { createAccount, getAllAccountsOfUser, updateAccount };
+// User can delete their account
+const deleteAccount = async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const user = req.user._id;
+
+    const deletedAccount = await accountModel.findOneAndDelete({
+      _id: accountId,
+      user,
+    });
+    if (!deletedAccount) {
+      return res.status(404).json({
+        success: false,
+        message: "Account not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Account deleted successfully",
+      deletedAccount,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = {
+  createAccount,
+  getAllAccountsOfUser,
+  updateAccount,
+  deleteAccount,
+};
